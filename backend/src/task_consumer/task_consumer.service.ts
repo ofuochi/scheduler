@@ -26,6 +26,9 @@ export class TaskConsumerService extends WorkerHost {
     const { data, opts } = job;
     this.logger.debug(`Started processing task ${data.id}...`);
 
+    // Simulate 10s of processing time
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
     // Simulate a 50% chance of failure
     if (Math.random() < 0.5)
       throw new Error(`Random failure for task ${data.id}`);
