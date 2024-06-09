@@ -31,7 +31,7 @@ export class TaskConsumerService extends WorkerHost {
 
     // Simulate a 50% chance of failure
     if (Math.random() < 0.5)
-      throw new Error(`Random failure for task ${data.id}`);
+      throw new Error(`Simulated random failure for task ${data.id}`);
 
     const taskToUpdate = {
       attempts: opts?.repeat?.count,
@@ -70,6 +70,7 @@ export class TaskConsumerService extends WorkerHost {
       status: TaskStatus.completed,
       completedAt: new Date(),
       id: data.id,
+      failedReason: null,
       runAt: this.calculateNextRunAt(opts?.delay),
       attempts: opts?.repeat?.count,
     });

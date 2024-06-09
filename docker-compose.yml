@@ -1,23 +1,31 @@
 services:
+  # init:
+  #   image: alpine
+  #   volumes:
+  #     - .:/app
+  #   working_dir: /app
+  #   entrypoint: sh init-env.sh
+  #   command: []
+
   redis:
     image: redis
     container_name: redis
     ports:
       - 6379:6379
+    # depends_on:
+    #   - init
     volumes:
       - ./backend/data/redis-data:/data
     networks:
       - app-network
 
-  task_scheduler:
-    container_name: task_scheduler
+  backend:
+    container_name: backend
     build: ./backend
     ports:
       - 3001:3001
     depends_on:
       - redis
-    env_file:
-      - ./backend/.env
     networks:
       - app-network
 
@@ -27,9 +35,7 @@ services:
     ports:
       - 3000:80
     depends_on:
-      - task_scheduler
-    env_file:
-      - ./frontend/.env
+      - backend
     networks:
       - app-network
 

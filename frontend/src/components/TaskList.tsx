@@ -4,7 +4,7 @@ import {
   CloseCircleOutlined,
   SyncOutlined,
   EditOutlined,
-  DeleteFilled,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import cronstrue from 'cronstrue';
@@ -146,7 +146,7 @@ const TaskList: React.FC<TaskListProps> = ({
             <Button
               type="primary"
               danger
-              icon={<DeleteFilled />}
+              icon={<DeleteOutlined />}
               size="small"
               title="Delete"
             />
