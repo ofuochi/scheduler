@@ -14,6 +14,9 @@ RUN yarn install
 # Copy the rest of the application code
 COPY . .
 
+# Copy sample.env to .env
+RUN cp sample.env .env
+
 # Build the application
 RUN yarn run build
 
@@ -27,6 +30,9 @@ RUN yarn install --production
 
 # Copy the build artifacts from the development stage
 COPY --from=development /usr/src/app/dist ./dist
+
+# Copy .env file
+COPY --from=development /usr/src/app/.env ./.env
 
 # Start the application
 CMD ["node", "dist/main"]
