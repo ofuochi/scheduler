@@ -1,19 +1,9 @@
 services:
-  # init:
-  #   image: alpine
-  #   volumes:
-  #     - .:/app
-  #   working_dir: /app
-  #   entrypoint: sh init-env.sh
-  #   command: []
-
   redis:
     image: redis
     container_name: redis
     ports:
       - 6379:6379
-    # depends_on:
-    #   - init
     volumes:
       - ./backend/data/redis-data:/data
     networks:
