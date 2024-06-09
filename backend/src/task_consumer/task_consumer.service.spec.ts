@@ -54,7 +54,6 @@ describe.only('TaskConsumerService', () => {
 
       expect(mockTaskRepository.update).toHaveBeenCalledWith(data.id, {
         attempts: job.opts?.repeat?.count,
-        runAt: expect.any(Date),
       });
       expect(result).not.toBeNull();
     });

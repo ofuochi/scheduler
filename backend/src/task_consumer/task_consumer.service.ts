@@ -5,6 +5,7 @@ import { CONCURRENCY_LIMIT, TASK_QUEUE_NAME } from '../constants/task.constant';
 import { Task, TaskStatus } from '../task_producer/entities/task.entity';
 import { TaskProducerRepository } from '../task_producer/task_producer.repo';
 import { TaskSocket } from './task.socket';
+import { addMilliseconds } from 'date-fns';
 
 @Processor(
   {
@@ -26,21 +27,22 @@ export class TaskConsumerService extends WorkerHost {
     const { data, opts } = job;
     this.logger.debug(`Started processing task ${data.id}...`);
 
-    // Simulate 10s of processing time
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    // Simulate 20s of processing time
+    await new Promise((resolve) => setTimeout(resolve, 20000));
 
     // Simulate a 50% chance of failure
-    if (Math.random() < 0.5)
-      throw new Error(`Simulated random failure for task ${data.id}`);
+    if (Math.random() < 0.5) throw new Error('Simulated random failure');
 
-    const taskToUpdate = {
+    const taskToUpdate: Partial<Task> = {
       attempts: opts?.repeat?.count,
-      runAt: this.calculateNextRunAt(opts?.delay),
     };
 
-    const result = await this.taskRepository.update(data.id, taskToUpdate);
+    const { affected } = await this.taskRepository.update(
+      data.id,
+      taskToUpdate,
+    );
 
-    return result.affected > 0 ? { ...data, ...taskToUpdate } : null;
+    return affected > 0 ? { ...data, ...taskToUpdate } : null;
   }
 
   @OnWorkerEvent('active')
@@ -48,16 +50,19 @@ export class TaskConsumerService extends WorkerHost {
     const { data, opts } = job;
     this.logger.debug(`Task ${data.id} is active...`);
 
-    const toUpdate = {
+    const toUpdate: Partial<Task> = {
       status: TaskStatus.processing,
       lastRunAt: new Date(),
       id: data.id,
-      runAt: this.calculateNextRunAt(opts?.delay),
       attempts: opts?.repeat?.count,
     };
-    const result = await this.taskRepository.update(data.id, toUpdate);
 
-    if (result.affected > 0) this.taskSocketGateway.sendTaskUpdate(toUpdate);
+    if (opts.delay && data.isRecurring)
+      toUpdate.runAt = this.calculateNextRunAt(opts.delay);
+
+    const { affected } = await this.taskRepository.update(data.id, toUpdate);
+
+    if (affected > 0) this.taskSocketGateway.sendTaskUpdate(toUpdate);
   }
 
   @OnWorkerEvent('completed')
@@ -66,19 +71,23 @@ export class TaskConsumerService extends WorkerHost {
 
     this.logger.debug(`Task ${data.id} is completed...`);
 
-    const result = await this.taskRepository.update(data.id, {
+    const toUpdate: Partial<Task> = {
       status: TaskStatus.completed,
       completedAt: new Date(),
       id: data.id,
       failedReason: null,
-      runAt: this.calculateNextRunAt(opts?.delay),
       attempts: opts?.repeat?.count,
-    });
+    };
+    if (opts.delay && data.isRecurring)
+      toUpdate.runAt = this.calculateNextRunAt(opts.delay);
 
-    if (result.affected === 0) {
+    const { affected } = await this.taskRepository.update(data.id, toUpdate);
+
+    if (affected === 0) {
       this.logger.warn(`Task ${data.id} not found in database`);
       return;
     }
+
     const task = await this.taskRepository.findOneById(data.id);
     this.taskSocketGateway.sendTaskUpdate(task);
   }
@@ -100,7 +109,7 @@ export class TaskConsumerService extends WorkerHost {
     this.taskSocketGateway.sendTaskUpdate(toUpdate);
   }
 
-  private calculateNextRunAt(delay?: number) {
-    return delay ? new Date(Date.now() + delay) : null;
+  private calculateNextRunAt(delay: number) {
+    return addMilliseconds(new Date(), delay);
   }
 }
