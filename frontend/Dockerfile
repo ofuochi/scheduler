@@ -14,6 +14,9 @@ RUN yarn install
 # Copy the rest of the application code
 COPY . .
 
+# Copy sample.env to .env
+RUN cp sample.env .env
+
 # Build the application
 RUN yarn run build
 
@@ -25,6 +28,9 @@ COPY --from=development /usr/src/app/build /usr/share/nginx/html
 
 # Copy custom Nginx configuration file
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy .env file
+COPY --from=development /usr/src/app/.env /usr/share/nginx/html/.env
 
 # Expose the port Nginx is running on
 EXPOSE 80
