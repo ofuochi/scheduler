@@ -6,12 +6,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JobsOptions, Queue } from 'bullmq';
-import { addMilliseconds, differenceInMilliseconds } from 'date-fns';
+import { differenceInMilliseconds } from 'date-fns';
+import { Transactional } from 'typeorm-transactional';
 import { TASK_QUEUE_NAME } from '../constants/task.constant';
+import { calculateNextExecutionTime } from '../utils/job.util';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskStatus } from './entities/task.entity';
 import { TaskProducerRepository } from './task_producer.repo';
-import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class TaskProducerService {
@@ -42,7 +43,8 @@ export class TaskProducerService {
     task.jobId = job.id.toString();
 
     if (createTaskDto.isRecurring)
-      task.runAt = addMilliseconds(new Date(), job.opts.delay);
+      task.runAt = calculateNextExecutionTime(createTaskDto.frequency);
+
     const result = await this.taskRepository.save(task);
 
     return result;

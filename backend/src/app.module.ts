@@ -16,7 +16,8 @@ import { DataSource } from 'typeorm';
           type: 'sqlite',
           database: 'data/sqlite.db',
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: true
+          synchronize: true,
+          autoLoadEntities: true,
         };
       },
       async dataSourceFactory(options) {

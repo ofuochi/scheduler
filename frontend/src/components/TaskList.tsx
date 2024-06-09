@@ -2,17 +2,17 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
-  SyncOutlined,
-  EditOutlined,
   DeleteOutlined,
+  EditOutlined,
+  SyncOutlined,
 } from '@ant-design/icons';
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Alert, Button, Popconfirm, Space, Table, Tag } from 'antd';
 import cronstrue from 'cronstrue';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 
-import { Task } from '../types';
 import { useSocketTaskUpdate } from '../hooks/useSocketTaskUpdate';
+import { Task } from '../types';
 
 interface TaskListProps {
   onClickEdit: (task: Task) => void;
@@ -63,6 +63,7 @@ const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
   const updatedTask = useSocketTaskUpdate();
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     setLocalTasks(tasks);
@@ -75,6 +76,7 @@ const TaskList: React.FC<TaskListProps> = ({
         task.id === updatedTask.id ? { ...task, ...updatedTask } : task
       )
     );
+    setShowBanner(true);
   }, [updatedTask]);
 
   const columns = [
@@ -144,7 +146,6 @@ const TaskList: React.FC<TaskListProps> = ({
             cancelText="No"
           >
             <Button
-              type="primary"
               danger
               icon={<DeleteOutlined />}
               size="small"
@@ -157,7 +158,24 @@ const TaskList: React.FC<TaskListProps> = ({
   ];
 
   return (
-    <Table columns={columns} dataSource={localTasks} rowKey="id" size="small" />
+    <>
+      {showBanner && (
+        <Alert
+          message="Task status updated, refresh to see the most updated status"
+          banner
+          closable
+        />
+      )}
+
+      <Table
+        columns={columns}
+        dataSource={localTasks}
+        rowKey="id"
+        pagination={{ pageSize: 5 }}
+        sticky
+        size="small"
+      />
+    </>
   );
 };
 

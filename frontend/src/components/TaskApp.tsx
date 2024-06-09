@@ -9,7 +9,7 @@ import {
   Spin,
 } from 'antd';
 import React, { useState } from 'react';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, ClearOutlined } from '@ant-design/icons';
 import {
   useCreateTask,
   useDeleteAllTasks,
@@ -112,12 +112,7 @@ const TaskApp: React.FC = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button
-              type="default"
-              size="large"
-              danger
-              icon={<DeleteOutlined />}
-            >
+            <Button type="primary" size="large" danger icon={<ClearOutlined />}>
               Clear All
             </Button>
           </Popconfirm>

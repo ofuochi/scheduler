@@ -8,7 +8,7 @@ import { Job } from 'bullmq';
 import { Task, TaskStatus } from '../task_producer/entities/task.entity';
 import { UpdateResult } from 'typeorm';
 
-describe.only('TaskConsumerService', () => {
+describe('TaskConsumerService', () => {
   let service: TaskConsumerService;
   let mockTaskRepository: jest.Mocked<TaskProducerRepository>;
   let mockTaskSocket: jest.Mocked<TaskSocket>;
@@ -52,9 +52,12 @@ describe.only('TaskConsumerService', () => {
 
       const result = await service.process(job);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(data.id, {
-        attempts: job.opts?.repeat?.count,
-      });
+      expect(mockTaskRepository.update).toHaveBeenCalledWith(
+        data.id,
+        expect.objectContaining({
+          status: TaskStatus.completed,
+        }),
+      );
       expect(result).not.toBeNull();
     });
 
@@ -111,29 +114,20 @@ describe.only('TaskConsumerService', () => {
 
   describe('onCompleted', () => {
     it('should handle completed event', async () => {
-      const job = createMock<Job<Task>>({ data: { id: 1 } });
-      const dbTask = createMock<Task>({ status: TaskStatus.completed });
-      mockTaskRepository.update.mockResolvedValue(
-        createMock<UpdateResult>({ affected: 1 }),
-      );
-      mockTaskRepository.findOneById.mockResolvedValue(dbTask);
+      const job = createMock<Job<Task>>({
+        data: { id: 1 },
+        returnvalue: createMock<Task>(),
+      });
 
       await service.onCompleted(job);
 
-      expect(mockTaskRepository.update).toHaveBeenCalledWith(
-        job.data.id,
-        expect.objectContaining({
-          status: TaskStatus.completed,
-        }),
+      expect(mockTaskSocket.sendTaskUpdate).toHaveBeenCalledWith(
+        job.returnvalue,
       );
-      expect(mockTaskSocket.sendTaskUpdate).toHaveBeenCalledWith(dbTask);
     });
 
-    it('should log a warning if task not found', async () => {
-      const job = createMock<Job<Task>>({ data: { id: 1 } });
-      mockTaskRepository.update.mockResolvedValue(
-        createMock<UpdateResult>({ affected: 0 }),
-      );
+    it('should not send notification if task fails to complete', async () => {
+      const job = createMock<Job<Task>>({ data: { id: 1 }, returnvalue: null });
 
       await service.onCompleted(job);
       expect(mockTaskSocket.sendTaskUpdate).not.toHaveBeenCalled();
