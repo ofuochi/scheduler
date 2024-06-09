@@ -28,14 +28,14 @@ const getColorConfig = (v: string) => {
         icon: <CheckCircleOutlined />,
         text: 'completed',
       };
-    case 'failed':
-      return { color: 'error', icon: <CloseCircleOutlined />, text: 'failed' };
     case 'processing':
       return {
         color: 'processing',
         icon: <SyncOutlined spin />,
         text: 'processing',
       };
+    case 'failed':
+      return { color: 'error', icon: <CloseCircleOutlined />, text: 'failed' };
     default:
       return {
         color: 'default',

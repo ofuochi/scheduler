@@ -47,9 +47,9 @@ export const useCreateTask = () => {
     mutationFn: createTask,
     onSuccess: (newTask) => {
       queryClient.setQueryData<Task[]>(['tasks'], (oldTasks) => {
-        if (oldTasks)
-          return [newTask, ...oldTasks.map((task) => ({ ...task }))]; // Add new task to the top
-        return [newTask];
+        return oldTasks
+          ? [newTask, ...oldTasks] // Add new task to the top
+          : [newTask];
       });
     },
   });
@@ -61,12 +61,9 @@ export const useUpdateTask = () => {
     mutationFn: updateTask,
     onSuccess: (updatedTask) => {
       queryClient.setQueryData<Task[]>(['tasks'], (oldTasks) => {
-        if (oldTasks) {
-          return oldTasks.map((task) =>
-            task.id === updatedTask.id ? updatedTask : task
-          ); // Update only the affected task
-        }
-        return [updatedTask];
+        return oldTasks // Update only the affected task
+          ? oldTasks.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+          : [updatedTask];
       });
     },
   });
@@ -78,10 +75,9 @@ export const useDeleteTask = () => {
     mutationFn: deleteTask,
     onSuccess: (deletedTaskId) => {
       queryClient.setQueryData<Task[]>(['tasks'], (oldTasks) => {
-        if (oldTasks) {
-          return oldTasks.filter((task) => task.id !== deletedTaskId);
-        }
-        return [];
+        return oldTasks
+          ? oldTasks.filter((task) => task.id !== deletedTaskId)
+          : [];
       });
     },
   });
