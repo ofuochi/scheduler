@@ -25,3 +25,4 @@ logs
 .dockerignore.example
 Dockerfile
 docker-compose.yml
+data
