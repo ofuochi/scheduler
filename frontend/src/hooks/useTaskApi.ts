@@ -47,7 +47,8 @@ export const useCreateTask = () => {
     mutationFn: createTask,
     onSuccess: (newTask) => {
       queryClient.setQueryData<Task[]>(['tasks'], (oldTasks) => {
-        if (oldTasks) return [newTask, ...oldTasks]; // Add new task to the top
+        if (oldTasks)
+          return [newTask, ...oldTasks.map((task) => ({ ...task }))]; // Add new task to the top
         return [newTask];
       });
     },

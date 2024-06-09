@@ -47,7 +47,7 @@ const TaskApp: React.FC = () => {
         {
           onSuccess: () => {
             message.success('Task updated successfully');
-            handleCancel();
+            resetView();
           },
           onError: (err) => message.error(err.message),
         }
@@ -56,14 +56,14 @@ const TaskApp: React.FC = () => {
       createTaskMutation.mutate(task, {
         onSuccess: () => {
           message.success('Task created successfully');
-          handleCancel();
+          resetView();
         },
         onError: (err) => message.error(err.message),
       });
     }
   };
 
-  const handleCancel = () => {
+  const resetView = () => {
     setIsModalVisible(false);
     setCurrentTask(undefined);
   };
@@ -133,7 +133,7 @@ const TaskApp: React.FC = () => {
         <Modal
           title={currentTask ? 'Edit Task' : 'Add Task'}
           open={isModalVisible}
-          onCancel={handleCancel}
+          onCancel={resetView}
           footer={null}
         >
           <TaskForm
