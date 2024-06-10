@@ -1,13 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/backend/node_modules
+*node_modules
 /frontend/node_modules
 /.pnp
 .pnp.js
 
 # compiled output
-/backend/dist
+*dist
 /frontend/build
 
 # Logs
@@ -23,7 +23,7 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
-/backend/coverage
+*coverage
 /frontend/coverage
 /.nyc_output
 
@@ -37,23 +37,18 @@ lerna-debug.log*
 *.sublime-workspace
 
 # IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+*.vscode/*
+*!.vscode/settings.json
+*!.vscode/tasks.json
+*!.vscode/launch.json
+*!.vscode/extensions.json
 
 # dotenv environment variable files
-/backend/.env
-/backend/.env.local
-/backend/.env.development.local
-/backend/.env.test.local
-/backend/.env.production.local
-/frontend/.env
-/frontend/.env.local
-/frontend/.env.development.local
-/frontend/.env.test.local
-/frontend/.env.production.local
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
 
 # temp directory
 .temp
@@ -74,4 +69,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # Folders
-/backend/data
+*data
