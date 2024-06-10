@@ -8,4 +8,4 @@ Run the following command that start the app (frontend and backend)
 docker-compose up --build
 ```
 
-Application will run at port 3000 by default i.e `http://localhost:3000`
+UI will run at port 3000 by default i.e `http://localhost:3000` and Server will run on port 3001 by default
