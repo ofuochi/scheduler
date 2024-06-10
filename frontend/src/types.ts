@@ -11,3 +11,5 @@ export type Task = {
   failedReason?: string;
   attempts: number;
 };
+
+export type UpdatedTask = Partial<Task> & { id: number };

@@ -1,3 +1,4 @@
+import { calculateNextExecutionTime } from '../utils/job.util';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
@@ -40,7 +41,7 @@ export class TaskConsumerService extends WorkerHost {
       attempts: opts?.repeat?.count,
     };
 
-    if (data.isRecurring) toUpdate.runAt = new Date(Date.now() + opts.delay);
+    if (data.isRecurring) toUpdate.runAt = this.calculateNextRunTime(job);
     else toUpdate.runAt = null;
 
     const { affected } = await this.taskRepository.update(data.id, toUpdate);
@@ -61,7 +62,7 @@ export class TaskConsumerService extends WorkerHost {
     };
 
     if (opts.delay && data.isRecurring)
-      toUpdate.runAt = new Date(Date.now() + opts.delay);
+      toUpdate.runAt = this.calculateNextRunTime(job);
 
     const { affected } = await this.taskRepository.update(data.id, toUpdate);
 
@@ -89,10 +90,20 @@ export class TaskConsumerService extends WorkerHost {
       attempts: opts?.repeat?.count,
     };
     if (opts.delay && data.isRecurring)
-      toUpdate.runAt = new Date(Date.now() + opts.delay);
+      toUpdate.runAt = this.calculateNextRunTime(job);
 
     await this.taskRepository.update(data.id, toUpdate);
 
     this.taskSocketGateway.sendTaskUpdate(toUpdate);
   }
+
+  calculateNextRunTime = ({ delay, data }: Job<Task>): Date => {
+    // Create a date object from the timestamp
+    // const jobCreationDate = new Date(timestamp);
+
+    // // Calculate the next run time by adding the delay to the timestamp
+    // const nextRunTime = new Date(jobCreationDate.getTime() + delay);
+
+    return calculateNextExecutionTime(data.frequency, delay);
+  };
 }

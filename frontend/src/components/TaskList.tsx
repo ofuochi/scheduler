@@ -67,6 +67,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
   useEffect(() => {
     setLocalTasks(tasks);
+    if (tasks.length === 0) setShowBanner(false);
   }, [tasks]);
 
   useEffect(() => {

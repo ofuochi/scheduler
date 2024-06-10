@@ -39,7 +39,7 @@ describe('TaskConsumerService', () => {
 
   describe('process', () => {
     it('should process job successfully', async () => {
-      const data = createMock<Task>({ id: 2 });
+      const data = createMock<Task>({ id: 2, frequency: '* * * *' });
       const job = createMock<Job<Task>>({ id: '1', data, opts: { delay: 10 } });
       jest.spyOn(global, 'setTimeout').mockImplementation((fn) => {
         fn();
