@@ -162,7 +162,7 @@ const TaskList: React.FC<TaskListProps> = ({
     <>
       {showBanner && (
         <Alert
-          message="Task status updated, refresh to see the most updated status"
+          message="Task status may be stale. Refresh the page to get the latest status."
           banner
           closable
         />
